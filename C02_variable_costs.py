@@ -77,7 +77,10 @@ def get_expenses(var_fixed):
         if item_name.lower() == "xxx":
             break
 
-        quantity = num_check("Quantity: ", "The amount must be a whole number. (More than zero)", int)
+        if var_fixed == "variable":
+            quantity = num_check("Quantity: ", "The amount must be a whole number. (More than zero)", int)
+        else:
+            quantity = 1
 
         price = num_check("How much for a single item? $", "The price must be a number (More than 0)", float)
 
@@ -98,7 +101,7 @@ def get_expenses(var_fixed):
     # Currency Formatting (uses currency function)
     add_dollars = ['Price', 'Cost']
     for item in add_dollars:
-        expense_frame[item] = expense_frame[item].apple(currency)
+        expense_frame[item] = expense_frame[item].apply(currency)
 
     return [expense_frame, sub_total]
 
@@ -109,12 +112,14 @@ def get_expenses(var_fixed):
 # Get product name
 product_name = not_blank("Product name: ", "The product name can't be blank")
 
-variable_expenses = get_expenses("variable")
-variable_frame = variable_expenses[0]
-variable_sub = variable_expenses[1]
+fixed_expenses = get_expenses("fixed")
+fixed_frame = fixed_expenses[0]
+fixed_sub = fixed_expenses[1]
 
 # ===== Printing area =====
 
 print()
-print(variable_frame)
+print(fixed_frame[['Cost']])
 print()
+
+print(f"Fixed Costs: ${fixed_sub:.2f}")
