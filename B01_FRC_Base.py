@@ -4,6 +4,29 @@ import math
 
 
 # ===== Functions =====
+
+
+# Shows instructions
+def show_instructions():
+    print('''\n
+***** Instructions *****
+
+The Program will ask you for:
+ %- The name of the product you are selling
+ %- The quantity of items you are planning on selling
+ %- The cost of each product component
+ %- How must money you want to make
+ 
+The program will output a list of the cost and subtotals
+for both variable and fixed cost. Finally the program will 
+give a recommended price for each item for you to reach your profit
+goal.
+
+The data from this will also be written into a text file which has the same name as your product.
+
+ ******************************''')
+
+
 # Checks that input is either a float or an integer that is more than zero. Takes in custom error message.
 def num_check(question, error, num_type):
     valid = False
@@ -155,7 +178,7 @@ def profit_goal(total_costs):
             continue
 
         if profit_type == "unknown" and amount >= 100:
-            dollar_type = yes_no(f"Do you mean ${amount:.2}. ie {amount:.2f} dollars? (y / n) ")
+            dollar_type = yes_no(f"Do you mean ${amount:.2f}. ie {amount:.2f} dollars? (y / n) ")
 
             # Set profit type based on user answer
             if dollar_type == "yes":
@@ -164,7 +187,7 @@ def profit_goal(total_costs):
                 profit_type = "%"
 
         elif profit_type == "unknown" and amount < 100:
-            percent_type = yes_no(f"Do you mean {amount:.2}%? (y / n) ")
+            percent_type = yes_no(f"Do you mean {amount:.2f}%? (y / n) ")
 
             # Set profit type based on user answer
             if percent_type == "yes":
@@ -187,11 +210,15 @@ def round_up(amount, round_to):
 
 # ===== Main routine =====
 
+want_instructions = yes_no("Would you like instructions on how to use the program? ")
+
+if want_instructions == "yes":
+    show_instructions()
 
 # Get product name
 product_name = not_blank("Product name: ", "The product name can't be blank")
 
-how_many = num_check("How many items will you be producing? ",
+how_many = num_check("\nHow many items will you be producing? ",
                      "The number of items must be a whole number more than zero", int)
 
 
@@ -203,9 +230,12 @@ variable_frame = variable_expenses[0]
 variable_sub = variable_expenses[1]
 
 print()
+
 have_fixed = yes_no("Do you have fixed costs (y/n)? ")
 
 if have_fixed == "yes":
+    print("Please enter your fixed costs below... ")
+
     # Get fixed costs
     fixed_expenses = get_expenses("fixed")
     fixed_frame = fixed_expenses[0]
@@ -213,6 +243,7 @@ if have_fixed == "yes":
 
 else:
     fixed_sub = 0
+    fixed_frame = ""
 
 # Work out total costs and profit target
 all_costs = variable_sub + fixed_sub
@@ -224,7 +255,6 @@ sales_needed = all_costs + profit_target
 # Asks user for rounding
 round_to = num_check("Round to nearest...? $",
                      "Can't be 0", int)
-
 
 # Calculate recommended price
 selling_price = sales_needed / how_many
@@ -243,7 +273,7 @@ print()
 expense_print("Variable", variable_frame, variable_sub)
 
 if have_fixed == "yes":
-    expense_print("Fixed", fixed_frame[['Cost']], fixed_sub)
+    expense_print("Fixed", fixed_frame['Cost'], fixed_sub)
 
 print()
 print(f"**** Total Costs: ${all_costs:.2f} ****")
@@ -258,3 +288,31 @@ print()
 print("**** Pricing ****")
 print(f"Minimum Price: ${selling_price:.2f}")
 print(f"Recommended Price: ${recommended_price:.2f}")
+
+profit_target = f"Profit Target: {profit_target:.2f}"
+sales_needed = f"Sales Needed: {sales_needed:.2f}"
+recommended_price = f"Recommended price: {recommended_price:.2f}"
+
+variable_txt = pandas.DataFrame.to_string(variable_frame)
+
+if have_fixed == "yes":
+    fixed_txt = pandas.DataFrame.to_string(fixed_frame)
+    to_write = [product_name, variable_txt, fixed_txt, profit_target, sales_needed, recommended_price]
+
+else:
+    to_write = [product_name, variable_txt, profit_target, sales_needed, recommended_price]
+
+# Write to file...
+# Create file to hold data (add .txt extension)
+file_name = f"{product_name}.txt"
+text_file = open(file_name, "w+")
+
+
+# Heading
+for item in to_write:
+    text_file.write(item)
+    text_file.write("\n\n")
+
+
+# Close file
+text_file.close()
