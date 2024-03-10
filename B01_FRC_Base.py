@@ -95,6 +95,7 @@ def get_expenses(var_fixed):
     item_name = ""
     while item_name.lower() != "xxx":
         print()
+
         # Get name, quantity and item
         item_name = not_blank("Item name: ", "The component name can't be blank.")
 
@@ -210,6 +211,7 @@ def round_up(amount, round_to):
 
 # ===== Main routine =====
 
+
 want_instructions = yes_no("Would you like instructions on how to use the program? ")
 
 if want_instructions == "yes":
@@ -220,7 +222,6 @@ product_name = not_blank("Product name: ", "The product name can't be blank")
 
 how_many = num_check("\nHow many items will you be producing? ",
                      "The number of items must be a whole number more than zero", int)
-
 
 print()
 print("Please enter your variable costs below...")
@@ -273,7 +274,7 @@ print()
 expense_print("Variable", variable_frame, variable_sub)
 
 if have_fixed == "yes":
-    expense_print("Fixed", fixed_frame['Cost'], fixed_sub)
+    expense_print("Fixed", fixed_frame[['Cost']], fixed_sub)
 
 print()
 print(f"**** Total Costs: ${all_costs:.2f} ****")
@@ -281,38 +282,47 @@ print()
 
 print()
 print("**** Profit & Sales Targets ****\n")
-print(f"Profit Target: ${profit_target:.2f}")
 print(f"Total Sales: ${all_costs + profit_target}")
+print(f"Profit Target: ${profit_target:.2f}")
 
 print()
 print("**** Pricing ****")
 print(f"Minimum Price: ${selling_price:.2f}")
 print(f"Recommended Price: ${recommended_price:.2f}")
 
-profit_target = f"Profit Target: {profit_target:.2f}"
-sales_needed = f"Sales Needed: {sales_needed:.2f}"
+product_heading = f"**** Fund Raising - {product_name} ****\n\n"
+total_costs_heading = f"\n\n**** Total Costs: ${all_costs:.2f} ****\n"
+variable_heading = "\n**** Variable Costs ****\n"
+fixed_heading = "\n\n**** Fixed Costs ****\n"
+
+profit_sales_heading = "\n**** Profit & Sales Targets ****\n"
+total_sales = f"Total Sales: ${all_costs + profit_target}\n"
+profit_target = f"Profit Target: {profit_target:.2f} | "
+
+pricing_heading = "\n*** Pricing ***\n"
+selling_price = f"Minimum Price: ${selling_price:.2f} | "
 recommended_price = f"Recommended price: {recommended_price:.2f}"
 
 variable_txt = pandas.DataFrame.to_string(variable_frame)
 
 if have_fixed == "yes":
     fixed_txt = pandas.DataFrame.to_string(fixed_frame)
-    to_write = [product_name, variable_txt, fixed_txt, profit_target, sales_needed, recommended_price]
+    to_write = [product_heading, variable_heading, variable_txt, fixed_heading, fixed_txt, total_costs_heading,
+                profit_sales_heading, profit_target, total_sales, pricing_heading, selling_price,
+                recommended_price]
 
 else:
-    to_write = [product_name, variable_txt, profit_target, sales_needed, recommended_price]
+    to_write = [product_heading, variable_txt, total_costs_heading, profit_target, selling_price,
+                recommended_price]
 
 # Write to file...
 # Create file to hold data (add .txt extension)
 file_name = f"{product_name}.txt"
 text_file = open(file_name, "w+")
 
-
 # Heading
 for item in to_write:
     text_file.write(item)
-    text_file.write("\n\n")
-
 
 # Close file
 text_file.close()
